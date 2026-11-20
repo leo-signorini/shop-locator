@@ -191,8 +191,9 @@
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
+  <script type="module">
     // DEMO , da capire che farci con l'import clienti.
+    /**
     const shops = [
       { id: "milano-centro", name: "Milano Centro", address: "Via Torino 12", city: "Milano", postcode: "20123", lat: 45.4627, lng: 9.1878, phone: "+39 02 0000001" },
       { id: "milano-nord", name: "Milano Nord", address: "Viale Zara 45", city: "Milano", postcode: "20125", lat: 45.5000, lng: 9.1900, phone: "+39 02 0000002" },
@@ -204,7 +205,8 @@
       { id: "cremona", name: "Cremona", address: "Piazza Roma 3", city: "Cremona", postcode: "26100", lat: 45.1330, lng: 10.0240, phone: "+39 0372 000008" },
       { id: "PROVA BOLO", name: "test BOLOGNA", address: "Piazza Maggiore", city: "Bologna", postcode: "40124", lat: 44.4939, lng: 11.3428, phone: "+39 0372 000009" }
     ];
-
+    **/
+    const shops = await fetch("shops.json", { cache: "no-cache" }).then(r => r.json());
     const search = document.getElementById("search");
     const list = document.getElementById("shop-list");
     const count = document.getElementById("count");
