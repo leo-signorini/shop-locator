@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop Locator Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #20252b;
+    }
+
+    .locator {
+      display: grid;
+      grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+
+    .search-label {
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #search {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    #count {
+      margin: 14px 0 10px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    #shop-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .shop-card {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      color: inherit;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .shop-card:hover {
+      background: #f7f9fb;
+    }
+
+    .shop-card.selected {
+      border: 2px solid #36666B;
+      background: #A2C1C3;
+    }
+
+    .shop-card h2 {
+      margin: 0 0 7px;
+      font-size: 17px;
+    }
+
+    .shop-card p {
+      margin: 4px 0;
+      color: #2D484B;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .empty {
+      padding: 16px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .map-panel {
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      background: #eee;
+    }
+
+    .notice {
+      position: absolute;
+      z-index: 500;
+      left: 10px;
+      bottom: 10px;
+      max-width: calc(100% - 20px);
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, .94);
+      border-radius: 5px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: #A2C1C3;
+      border: 2px solid #36666B;
+      border-radius: 10px;
+    }
+
+    .leaflet-popup-content {
+      margin: 12px;
+    }
+
+    .leaflet-popup-tip {
+      background: #A2C1C3;
+    }
+
+    @media (max-width: 650px) {
+      .locator {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(220px, 42%) minmax(250px, 58%);
+      }
+
+      .sidebar {
+        padding: 14px;
+        border-right: 0;
+        border-bottom: 1px solid #ddd;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 21px;
+      }
+
+      #count {
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="locator">
+    <aside class="sidebar">
+      <h1>Trova i nostri rivenditori</h1>
+      <label class="search-label" for="search">Città, indirizzo, nome, CAP</label>
+      <input id="search" type="search" placeholder="Trova un negozio vicino a te" autocomplete="on">
+      <p id="count" aria-live="polite">Caricamento...</p>
+      <div id="shop-list"></div>
+    </aside>
+    <section class="map-panel" aria-label="Shop map">
+      <div id="map"></div>
+      <div class="notice"><b>DA CAPIRE CHE FARE CON IL JSON</b></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // DEMO , da capire che farci con l'import clienti.
+    const shops = [
+      { id: "milano-centro", name: "Milano Centro", address: "Via Torino 12", city: "Milano", postcode: "20123", lat: 45.4627, lng: 9.1878, phone: "+39 02 0000001" },
+      { id: "milano-nord", name: "Milano Nord", address: "Viale Zara 45", city: "Milano", postcode: "20125", lat: 45.5000, lng: 9.1900, phone: "+39 02 0000002" },
+      { id: "Test Prova SRL", name: "Test Prova SRL", address: "Via Italia 8", city: "Monza", postcode: "20900", lat: 45.5845, lng: 9.2744, phone: "+39 039 0000003" },
+      { id: "bergamod", name: "Bergamo", address: "Via XX Settembre 20", city: "Bergamo", postcode: "24122", lat: 45.6950, lng: 9.6700, phone: "+39 035 0000004" },
+      { id: "brescia", name: "Brescia", address: "Corso Zanardelli 15", city: "Brescia", postcode: "25121", lat: 45.5390, lng: 10.2200, phone: "+39 030 0000005" },
+      { id: "como", name: "Como", address: "Via Giovio 6", city: "Como", postcode: "22100", lat: 45.8080, lng: 9.0850, phone: "+39 031 0000006" },
+      { id: "pavia", name: "Pavia", address: "Corso Cavour 18", city: "Pavia", postcode: "27100", lat: 45.1850, lng: 9.1550, phone: "+39 0382 000007" },
+      { id: "cremona", name: "Cremona", address: "Piazza Roma 3", city: "Cremona", postcode: "26100", lat: 45.1330, lng: 10.0240, phone: "+39 0372 000008" },
+      { id: "PROVA BOLO", name: "test BOLOGNA", address: "Piazza Maggiore", city: "Bologna", postcode: "40124", lat: 44.4939, lng: 11.3428, phone: "+39 0372 000009" }
+    ];
+
+    const search = document.getElementById("search");
+    const list = document.getElementById("shop-list");
+    const count = document.getElementById("count");
+
+    const map = L.map("map");
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const markers = new Map();
+    let visibleShops = [...shops];
+    let selectedId = null;
+
+    shops.forEach(shop => {
+      const marker = L.marker([shop.lat, shop.lng]);
+      const popup = document.createElement("div");
+      const title = document.createElement("strong");
+
+      // crea il link per google maps dentro il popup
+      const link = document.createElement('a');
+      link.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.address)}`;
+      link.textContent = 'Google Maps ->';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      title.textContent = shop.name;
+
+      const address = document.createElement("p");
+      address.textContent = [shop.address, shop.postcode, shop.city].filter(Boolean).join(", ");
+      popup.append(title, address);
+      if (shop.phone) {
+        const phone = document.createElement("p");
+        phone.textContent = shop.phone;
+        popup.appendChild(phone);
+      }
+      popup.appendChild(link);
+      marker.bindPopup(popup);
+      marker.on("click", () => selectShop(shop.id));
+      markers.set(shop.id, marker);
+    });
+
+    function renderCards() {
+      list.replaceChildren();
+      if (visibleShops.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "Nessun rivenditore trovato";
+        list.appendChild(empty);
+        return;
+      }
+
+      visibleShops.forEach(shop => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "shop-card";
+        card.dataset.id = shop.id;
+        card.setAttribute("aria-pressed", String(shop.id === selectedId));
+        if (shop.id === selectedId) card.classList.add("selected");
+
+        const title = document.createElement("h2");
+        title.textContent = shop.name;
+        const address = document.createElement("p");
+        address.textContent = [shop.address, shop.postcode, shop.city].filter(Boolean).join(", ");
+        card.append(title, address);
+        if (shop.phone) {
+          const phone = document.createElement("p");
+          phone.textContent = shop.phone;
+          card.appendChild(phone);
+        }
+        card.addEventListener("click", () => selectShop(shop.id));
+        list.appendChild(card);
+      });
+    }
+
+    function renderMarkers() {
+      shops.forEach(shop => {
+        const marker = markers.get(shop.id);
+        if (visibleShops.includes(shop)) {
+          if (!map.hasLayer(marker)) marker.addTo(map);
+        } else if (map.hasLayer(marker)) {
+          map.removeLayer(marker);
+        }
+      });
+    }
+
+    function updateMap() {
+      if (visibleShops.length === 0) {
+        map.closePopup();
+        return;
+      }
+      if (selectedId !== null) {
+        const selected = visibleShops.find(shop => shop.id === selectedId);
+        if (selected) {
+          map.setView([selected.lat, selected.lng], 15);
+          return;
+        }
+      }
+      if (visibleShops.length === 1) {
+        const shop = visibleShops[0];
+        map.setView([shop.lat, shop.lng], 15);
+        return;
+      }
+      const bounds = L.latLngBounds(visibleShops.map(shop => [shop.lat, shop.lng]));
+      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
+    }
+
+    function selectShop(id) {
+      const shop = visibleShops.find(item => item.id === id);
+      if (!shop) return;
+      selectedId = id;
+      renderCards();
+      const card = [...list.querySelectorAll(".shop-card")].find(el => el.dataset.id === id);
+      card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      // movimento verso lo shop desiderato
+      map.flyTo(
+        [shop.lat, shop.lng],
+        15,
+        {
+          animate: true,
+          easeLinearity: 0.1,
+          duration: 2.5
+        });
+      markers.get(id).openPopup();
+    }
+
+    function filterShops() {
+      const query = search.value.trim().toLocaleLowerCase();
+      visibleShops = shops.filter(shop => {
+        const text = [shop.name, shop.address, shop.city, shop.postcode]
+          .filter(Boolean).join(" ").toLocaleLowerCase();
+        return text.includes(query);
+      });
+
+      if (!visibleShops.some(shop => shop.id === selectedId)) selectedId = null;
+
+      renderCards();
+      renderMarkers();
+      updateMap();
+      count.textContent = `${visibleShops.length} rivenditori su ${shops.length} totali`;
+    }
+
+    search.addEventListener("input", filterShops);
+    renderCards();
+    renderMarkers();
+    count.textContent = `${shops.length} rivenditori autorizzati`;
+    updateMap();
+
+    // riaggiusta le dimensioni della mappa in caso di resize o caricamenti.
+    window.addEventListener("load", () => map.invalidateSize());
+    window.addEventListener("resize", () => map.invalidateSize());
+  </script>
+</body>
+
+</html>
