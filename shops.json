@@ -8,4 +8,5 @@
   { "id": "pavia", "name": "Pavia", "address": "Corso Cavour 18", "city": "Pavia", "postcode": "27100", "lat": 45.1850, "lng": 9.1550, "phone": "+39 0382 000007" },
   { "id": "cremona", "name": "Cremona", "address": "Piazza Roma 3", "city": "Cremona", "postcode": "26100", "lat": 45.1330, "lng": 10.0240, "phone": "+39 0372 000008" },
   { "id": "bologna-test", "name": "test BOLOGNA", "address": "Piazza Maggiore", "city": "Bologna", "postcode": "40124", "lat": 44.4939, "lng": 11.3428, "phone": "+39 0372 000009" }
+  { "id": "bologna-test2", "name": "test BOLOGNA GITHUB MIAO MIAO", "address": "TEST", "city": "TEST", "postcode": "40124", "lat": 44.4941, "lng": 11.3441, "phone": "+39 0372 000009" }
 ]
