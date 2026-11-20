@@ -1,0 +1,11 @@
+[
+  { "id": "milano-centro", "name": "Milano Centro", "address": "Via Torino 12", "city": "Milano", "postcode": "20123", "lat": 45.4627, "lng": 9.1878, "phone": "+39 02 0000001" },
+  { "id": "milano-nord", "name": "Milano Nord", "address": "Viale Zara 45", "city": "Milano", "postcode": "20125", "lat": 45.5000, "lng": 9.1900, "phone": "+39 02 0000002" },
+  { "id": "monza-test", "name": "Test Prova SRL", "address": "Via Italia 8", "city": "Monza", "postcode": "20900", "lat": 45.5845, "lng": 9.2744, "phone": "+39 039 0000003" },
+  { "id": "bergamo", "name": "Bergamo", "address": "Via XX Settembre 20", "city": "Bergamo", "postcode": "24122", "lat": 45.6950, "lng": 9.6700, "phone": "+39 035 0000004" },
+  { "id": "brescia", "name": "Brescia", "address": "Corso Zanardelli 15", "city": "Brescia", "postcode": "25121", "lat": 45.5390, "lng": 10.2200, "phone": "+39 030 0000005" },
+  { "id": "como", "name": "Como", "address": "Via Giovio 6", "city": "Como", "postcode": "22100", "lat": 45.8080, "lng": 9.0850, "phone": "+39 031 0000006" },
+  { "id": "pavia", "name": "Pavia", "address": "Corso Cavour 18", "city": "Pavia", "postcode": "27100", "lat": 45.1850, "lng": 9.1550, "phone": "+39 0382 000007" },
+  { "id": "cremona", "name": "Cremona", "address": "Piazza Roma 3", "city": "Cremona", "postcode": "26100", "lat": 45.1330, "lng": 10.0240, "phone": "+39 0372 000008" },
+  { "id": "bologna-test", "name": "test BOLOGNA", "address": "Piazza Maggiore", "city": "Bologna", "postcode": "40124", "lat": 44.4939, "lng": 11.3428, "phone": "+39 0372 000009" }
+]
